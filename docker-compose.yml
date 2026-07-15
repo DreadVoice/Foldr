@@ -1,0 +1,22 @@
+services:
+  mysql:                              # service name; also its hostname on the compose network
+    image: mysql:8.4                  # pinned version — never use :latest (see below)
+    container_name: foldr-mysql       # stable name for docker commands
+    restart: unless-stopped           # auto-restart on crash or machine reboot
+    environment:
+      MYSQL_DATABASE: foldr           # DB auto-created on first boot
+      MYSQL_USER: foldr_user          # non-root app user, created on first boot
+      MYSQL_PASSWORD: foldr_pass      # its password
+      MYSQL_ROOT_PASSWORD: root_pass  # required by the image even if you never use root
+    ports:
+      - "3307:3306"                   # host:container
+    volumes:
+      - foldr_mysql_data:/var/lib/mysql   # named volume → MySQL's data directory
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  foldr_mysql_data:                   # declares the named volume
