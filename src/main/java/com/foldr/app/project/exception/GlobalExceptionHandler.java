@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -27,6 +28,13 @@ public class GlobalExceptionHandler {
 
         return build(HttpStatus.BAD_REQUEST, details, request);
     }
+
+        @ExceptionHandler(NoResourceFoundException.class)
+        public ResponseEntity<ErrorResponse> handleNotFound(NoResourceFoundException ex, HttpServletRequest request) {
+
+                log.warn("No endpoint mapped for {} {}", request.getMethod(), request.getRequestURI());
+                return build(HttpStatus.NOT_FOUND, "No endpoint found for the requested path", request);
+        }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(
